@@ -5,6 +5,7 @@ using KASHOP.DAL.Models;
 using KASHOP.DAL.Repository;
 using KASHOP.PL.Resources;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace KASHOP.PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly IStringLocalizer<SharedResources> _localizer;
@@ -33,7 +35,7 @@ namespace KASHOP.PL.Controllers
 
         }
         [HttpPost]
-        public async Task<IActionResult> Create(CategoryRequest request)
+        public async Task<IActionResult> Create([FromBody]CategoryRequest request)
         {
             await _categoryService.CreateCategory(request);
 
@@ -43,7 +45,11 @@ namespace KASHOP.PL.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var category = await _categoryService.GetCategory(c => c.Id == id);
+            var category = await _categoryService.GetCategoryById(id);
+
+            if (category == null)
+                return NotFound();
+
             return Ok(category);
         }
         [HttpDelete("{id}")]
@@ -55,7 +61,7 @@ namespace KASHOP.PL.Controllers
 
         }
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateById(int id , CategoryRequest request)
+        public async Task<IActionResult> UpdateById(int id ,[FromBody]CategoryRequest request)
         {
             var updated= await _categoryService.UpdateCategory(id,request);
             if (!updated) return BadRequest();

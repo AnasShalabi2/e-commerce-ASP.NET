@@ -36,17 +36,25 @@ namespace KASHOP.BLL.Services
 
 
 
-        public async Task<List<CategoryResponse>> GetAllCategories()
+        public async Task<List<CategoryResponse>?> GetAllCategories()
         {
             var categories = await _categoryRepository.GetAllAsync(
                 new string[] { nameof(Category.Translations) });
+            if (categories == null)
+                return null;
 
             return categories.Adapt<List<CategoryResponse>>();
         }
 
-        public async Task<CategoryResponse> GetCategory(Expression<Func<Category, bool>> filter)
+        public async Task<CategoryResponse?> GetCategoryById(int id)
         {
-            var category = await _categoryRepository.GetOneAsync(filter, new string[] { nameof(Category.Translations) });
+            var category = await _categoryRepository.GetOneAsync(
+                c => c.Id == id,
+                new string[] { nameof(Category.Translations) });
+
+            if (category == null)
+                return null;
+
             return category.Adapt<CategoryResponse>();
         }
 

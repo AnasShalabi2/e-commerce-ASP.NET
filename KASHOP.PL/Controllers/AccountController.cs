@@ -17,11 +17,26 @@ namespace KASHOP.PL.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            var result = await _authenticationService.Register(request);
+            var result = await _authenticationService.RegisterAsync(request);
             return Ok(result);
         }
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            var response = await _authenticationService.LoginAsync(request);
+            return Ok(response);
+        }
+        [HttpGet("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailRequest request)
+        {
 
+            var result = await _authenticationService.ConfirmEmail(request);
+            if (!result) return BadRequest();
+            return Ok();
+
+        }
     }
 }
+
