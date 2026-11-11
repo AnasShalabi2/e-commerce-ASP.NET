@@ -13,7 +13,7 @@ namespace KASHOP.DAL.Models
         public string? Language {  get; set; }
         public int CategoryId {  get; set; }
         public Category category {  get; set; }
-
+         
        
 
 

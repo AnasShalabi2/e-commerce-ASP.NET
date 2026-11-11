@@ -1,0 +1,98 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace KASHOP.DAL.Migrations
+{
+    /// <inheritdoc />
+    public partial class auditLog : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<string>(
+                name: "CreatedById",
+                table: "Categories",
+                type: "nvarchar(450)",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "CreatedOn",
+                table: "Categories",
+                type: "nvarchar(max)",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "UpdatedById",
+                table: "Categories",
+                type: "nvarchar(450)",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "UpdatedOn",
+                table: "Categories",
+                type: "nvarchar(max)",
+                nullable: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_CreatedById",
+                table: "Categories",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_UpdatedById",
+                table: "Categories",
+                column: "UpdatedById");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Categories_AspNetUsers_CreatedById",
+                table: "Categories",
+                column: "CreatedById",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Categories_AspNetUsers_UpdatedById",
+                table: "Categories",
+                column: "UpdatedById",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Categories_AspNetUsers_CreatedById",
+                table: "Categories");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Categories_AspNetUsers_UpdatedById",
+                table: "Categories");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Categories_CreatedById",
+                table: "Categories");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Categories_UpdatedById",
+                table: "Categories");
+
+            migrationBuilder.DropColumn(
+                name: "CreatedById",
+                table: "Categories");
+
+            migrationBuilder.DropColumn(
+                name: "CreatedOn",
+                table: "Categories");
+
+            migrationBuilder.DropColumn(
+                name: "UpdatedById",
+                table: "Categories");
+
+            migrationBuilder.DropColumn(
+                name: "UpdatedOn",
+                table: "Categories");
+        }
+    }
+}
