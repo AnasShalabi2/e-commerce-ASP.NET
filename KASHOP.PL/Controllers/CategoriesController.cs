@@ -29,44 +29,42 @@ namespace KASHOP.PL.Controllers
         public async Task<IActionResult> Index()
         {
 
-            var categories = await _categoryService.GetAllCategories();
+            var result = await _categoryService.GetAllCategories();
 
-            return Ok(new { _localizer["Success"].Value, categories });
+            return result.Success ? Ok(result) : BadRequest(result);
 
         }
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CategoryRequest request)
         {
-            await _categoryService.CreateCategory(request);
+            var result = await _categoryService.CreateCategory(request);
 
-            return Ok();
 
+            return result.Success ? Ok(result) : BadRequest(result);
         }
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var category = await _categoryService.GetCategoryById(id);
-
-            if (category == null)
-                return NotFound();
-
-            return Ok(category);
+            var result = await _categoryService.GetCategoryById(id);
+            return result.Success ? Ok(result) : NotFound(result);
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteById(int id)
         {
-            var deleted = await _categoryService.DeleteCategory(id);
-            if(!deleted) return BadRequest();
-            return Ok();
+            var result = await _categoryService.DeleteCategory(id);
+
+            return result.Success ? Ok(result) : NotFound(result);
 
         }
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateById(int id ,[FromBody]CategoryRequest request)
         {
-            var updated= await _categoryService.UpdateCategory(id,request);
-            if (!updated) return BadRequest();
-            return Ok();
+            var result = await _categoryService.UpdateCategory(id,request);
+            return result.Success ? Ok(result) : NotFound(result);
+
         }
-        
+
     }
 }

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace KASHOP.DAL.Dto
 {
-    public class LoginResponse
+    public class CategoryResponse
     {
-        public string? Message { get; set; }
-        public string? AccessToken { get; set; }
+        public int Id { get; set; }
+        public string? Name { get; set; }
 
     }
 }

@@ -4,6 +4,7 @@ using KASHOP.DAL.Repository;
 using Mapster;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -13,60 +14,157 @@ namespace KASHOP.BLL.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryService(ICategoryRepository categoryRepository)
+        public CategoryService(IUnitOfWork unitOfWork)
         {
-            _categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<CategoryResponse> CreateCategory(CategoryRequest request)
+        public async Task<Result<CategoryResponse>> CreateCategory(CategoryRequest request)
         {
-            var category = request.Adapt<Category>();
-            await _categoryRepository.CreateAsync(category);
-            return category.Adapt<CategoryResponse>();
+            try
+            {
+                var category = request.Adapt<Category>();
+                await _unitOfWork.CategoryRepository.CreateAsync(category);
+                await _unitOfWork.ComplateAsync();
+                return new Result<CategoryResponse>
+                {
+                    Success = true,
+                    Message = "Success",
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result<CategoryResponse>
+                {
+                    Success = true,
+                    Message = ex.InnerException.Message
+                };
+            }
         }
 
-        public async Task<bool> DeleteCategory(int id)
+        public async Task<Result<bool>> DeleteCategory(int id)
         {
-            var categoty = await _categoryRepository.GetOneAsync(c => c.Id == id);
-            if (categoty == null) return false;
-            return await _categoryRepository.DeleteAsync(categoty);
+          
+                var category = await _unitOfWork.CategoryRepository.GetOneAsync(c => c.Id == id);
+                if (category == null)
+                {
+
+                    return new Result<bool>
+                    {
+                        Success = false,
+                        Message = "Categort Not Found"
+                    };
+                }
+                   _unitOfWork.CategoryRepository.Delete(category);
+                var affectedRows = await _unitOfWork.ComplateAsync();
+                return new Result<bool>
+                {
+                    Success = affectedRows > 0 ,
+                    Message = affectedRows > 0 ? "Success" : "Failed to delete Category"
+                };
+             
+            }
+           
+
+
+
+        public async Task<Result<List<CategoryResponse>>> GetAllCategories()
+        {
+            try
+            {
+                var categories = await _unitOfWork.CategoryRepository.GetAllAsync(
+                   includes : new string[] { nameof(Category.Translations), "CreatedBy" });
+                return new Result<List<CategoryResponse>>
+                {
+                    Success = true,
+                    Message = "Success",
+                    Data = categories.Adapt<List<CategoryResponse>>()
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new Result<List<CategoryResponse>>
+                {
+                    Success = false,
+                    Message = ex.InnerException.Message
+                };
+
+            }
         }
 
-
-
-        public async Task<List<CategoryResponse>?> GetAllCategories()
+        public async Task<Result<CategoryResponse>>? GetCategoryById(int id)
         {
-            var categories = await _categoryRepository.GetAllAsync(
-                new string[] { nameof(Category.Translations) });
-            if (categories == null)
-                return null;
+            try
+            {
+                var category = await _unitOfWork.CategoryRepository.GetOneAsync(
+                    c => c.Id == id,
+                    new string[] { nameof(Category.Translations) });
 
-            return categories.Adapt<List<CategoryResponse>>();
+                if (category == null)
+                {
+                    return new Result<CategoryResponse>
+                    {
+                        Success = false,
+                        Message = "Category Not Found"
+                    };
+                }
+                return new Result<CategoryResponse>
+                {
+                    Success = true,
+                    Message = "Success",
+                    Data = category.Adapt<CategoryResponse>()
+                };
+            }
+
+            catch (Exception ex)
+            {
+                return new Result<CategoryResponse>
+                {
+                    Success = false,
+                    Message = ex.InnerException.Message
+                };
+
+            }
         }
 
-        public async Task<CategoryResponse?> GetCategoryById(int id)
+        public async Task<Result<bool>> UpdateCategory(int id, CategoryRequest request)
         {
-            var category = await _categoryRepository.GetOneAsync(
-                c => c.Id == id,
-                new string[] { nameof(Category.Translations) });
+            
+                var category = await _unitOfWork.CategoryRepository.GetOneAsync(c => c.Id == id, new string[] { nameof(Category.Translations) });
+                if (category == null)
+                {
+                    return new Result<bool>
+                    {
+                        Success = false,
+                        Message = "Category Not Found"
+                    };
+                }
+                category.Translations = request.Translations.Adapt<List<CategoryTranslation>>();
+                _unitOfWork.CategoryRepository.Update(category);
+                var affectedRows = await _unitOfWork.ComplateAsync();
+                return new Result<bool>
+                {
+                    Success = affectedRows>0,
+                    Message = affectedRows>0 ? "Success" : "Failed to Update",
+                };
 
-            if (category == null)
-                return null;
 
-            return category.Adapt<CategoryResponse>();
+            }
+          
+
+            }
         }
+    
 
-        public async Task<bool> UpdateCategory(int id, CategoryRequest request)
-        {
-            var category = await _categoryRepository.GetOneAsync(c => c.Id == id, new string[] { nameof(Category.Translations) });
-            if (category == null) return false;
+        
 
-            category.Translations = request.Translations.Adapt<List<CategoryTranslation>>();
 
-            return await _categoryRepository.UpdateAsync(category);
-        }
-    }
-}
+
+
+
+
+
 

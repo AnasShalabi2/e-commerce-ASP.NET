@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace KASHOP.BLL.Common
 {
-    public class EmailSettings
+    public class StripeSettings
     {
-        public string? Email { get; set; }
-        public string? Password { get; set; }
+        public string SecretKey { get; set; }
+        public string PublishKey { get; set; }
     }
 }

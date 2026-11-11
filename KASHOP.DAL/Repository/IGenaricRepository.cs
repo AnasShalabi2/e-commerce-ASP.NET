@@ -10,11 +10,12 @@ namespace KASHOP.DAL.Repository
 {
     public interface IGenaricRepository<A> where A : class
     {
-        Task<List<A>> GetAllAsync(string[]? includes = null);
-        Task<bool> CreateAsync(A entity);
-        Task<A> GetOneAsync(Expression<Func<A, bool>> filter, string[]? includes = null);
-        Task<bool> DeleteAsync(A entity);
-        Task <bool> UpdateAsync(A entity);
+        Task<List<A>> GetAllAsync(Expression<Func<A, bool>> ? filter = null, string[]? includes = null);
+        Task<A> CreateAsync(A entity);
+        Task<A>? GetOneAsync(Expression<Func<A, bool>> filter, string[]? includes = null);
+        void Delete(A entity);
+        void Update(A entity);
+        public IQueryable<A> getQueryable(Expression<Func<A, bool>>? filter = null, string[]? includes = null);
 
 
     }
