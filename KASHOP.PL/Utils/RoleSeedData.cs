@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using KASHOP.DAL.Dto;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace KASHOP.PL.Utils
@@ -14,12 +15,14 @@ namespace KASHOP.PL.Utils
 
         public async Task DataSeed()
         {
-            string[] roles = { "Super Admin", "Admin", "user" };
+            string[] roles = { "superAdmin", "admin", "user" };
             if (!await _roleManager.Roles.AnyAsync())
             {
                 foreach (var role in roles)
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(role));
+                    var result = await _roleManager.CreateAsync(new IdentityRole(role));
+                    if (!result.Succeeded)
+                        throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
                 }
 
             }
