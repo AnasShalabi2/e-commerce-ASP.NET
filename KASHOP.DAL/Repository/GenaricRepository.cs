@@ -18,37 +18,55 @@ namespace KASHOP.DAL.Repository
         {
             _context = context;
         }
-        public async Task<bool> CreateAsync(A entity)
+        public async Task<A> CreateAsync(A entity)
         {
             _context.Add(entity);
-            var affected = await _context.SaveChangesAsync();
-            return affected > 0;
+            return entity;
         }
 
-        public async Task<bool> DeleteAsync(A entity)
+        public void Delete(A entity)
         {
            _context.Remove(entity);
-           var affected = await _context.SaveChangesAsync();
-           return affected > 0;
         }
-
-        public async Task<List<A>> GetAllAsync(string[]? includes = null)
+        public IQueryable<A> getQueryable(Expression<Func<A, bool>>? filter = null, string[]? includes = null)
         {
             IQueryable<A> query = _context.Set<A>();
-            foreach(var include in includes)
+            if (includes != null)
             {
-                if(include != null)
+                foreach (var include in includes)
                 {
+
                     query = query.Include(include);
                 }
             }
+            if (filter is not null)
+                query = query.Where(filter);
+
+            return query;
+        }
+
+        public async Task<List<A>> GetAllAsync(Expression<Func<A, bool>>? filter = null,string[]? includes = null)
+        {
+            IQueryable<A> query = _context.Set<A>();
+            if (includes is not null)
+            {
+                foreach (var include in includes)
+            {
+
+                    query = query.Include(include);
+                }
+              
+            }
+            if (filter is not null)
+                query = query.Where(filter);
+
             return await query.ToListAsync();
         }
 
-        public async Task<A> GetOneAsync(Expression<Func<A, bool>> filter, string[]? includes = null)
+        public async Task<A>? GetOneAsync(Expression<Func<A, bool>> ? filter = null, string[]? includes = null)
         {
             IQueryable<A> query = _context.Set<A>();
-            if(includes != null)
+            if(includes is not null)
             {
                 foreach(var include in includes)
                 {
@@ -56,14 +74,11 @@ namespace KASHOP.DAL.Repository
                 }
             }
             return await query.FirstOrDefaultAsync(filter);
-
         }
 
-        public async Task<bool> UpdateAsync(A entity)
+        public void Update(A entity)
         {
             _context.Update(entity);
-            var affected = await _context.SaveChangesAsync();
-            return affected > 0;
         }
     }
 }

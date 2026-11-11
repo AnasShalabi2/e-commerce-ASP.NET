@@ -1,0 +1,44 @@
+﻿using KASHOP.BLL.Dto;
+using KASHOP.DAL.Dto;
+using KASHOP.DAL.Models;
+using Mapster;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace KASHOP.BLL.Mapping
+{
+    public static class MapsterConfig
+    {
+        public static void MapsterConfigRegister()
+        {
+            TypeAdapterConfig<Category, CategoryResponse>.NewConfig()
+                .Map(dest => dest.Name, src => src.Translations
+                 .Where(t => t.Language == CultureInfo.CurrentCulture.TwoLetterISOLanguageName)
+                 .Select(t => t.Name)
+                 .FirstOrDefault());
+
+            TypeAdapterConfig<Product, ProductResponse>.NewConfig()
+              .Map(dest => dest.Name, src => src.Translations.Where
+              (t => t.Language == CultureInfo.CurrentCulture.TwoLetterISOLanguageName).
+             Select(t => t.Name).FirstOrDefault())
+            .Map(dest => dest.Description, src => src.Translations.Where
+            (t => t.Language == CultureInfo.CurrentCulture.TwoLetterISOLanguageName).
+            Select(t => t.Description).FirstOrDefault());
+            TypeAdapterConfig<CartItem, CartItemResponse>.NewConfig()
+                .Map(dest => dest.ProductName, src => src.Product.Translations.
+                Where(t => t.Language == CultureInfo.CurrentCulture.TwoLetterISOLanguageName)
+                .Select(t => t.Name).FirstOrDefault())
+            .Map(dest => dest.Price, src => src.Product.Price)
+            .Map(dest => dest.MainImage, src => src.Product.MainImage);
+            TypeAdapterConfig<Order, OrderSummaryResponse>.NewConfig()
+                .Map(dest => dest.ItemsCount, src => src.OrderItems.Sum(i => i.Count));
+            
+
+        }
+
+    }
+}
